@@ -1,0 +1,91 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Customer;
+use App\Models\Product;
+use Illuminate\Http\Request;
+
+class CustomerController extends Controller
+{
+    public function index(Request $request)
+    {
+        $customers = Customer::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->input('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('customers.index', compact('customers'));
+    }
+
+    public function create()
+    {
+        return view('customers.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $this->validateCustomer($request);
+
+        Customer::create($validated);
+
+        return redirect()
+            ->route('customers.index')
+            ->with('success', 'Customer created successfully.');
+    }
+
+    public function show(Customer $customer)
+    {
+        $products = Product::orderBy('name')->get();
+
+        return view('customers.show', compact('customer', 'products'));
+    }
+
+    public function edit(Customer $customer)
+    {
+        return view('customers.edit', compact('customer'));
+    }
+
+    public function update(Request $request, Customer $customer)
+    {
+        $validated = $this->validateCustomer($request, $customer->id);
+
+        $customer->update($validated);
+
+        return redirect()
+            ->route('customers.index')
+            ->with('success', 'Customer updated successfully.');
+    }
+
+    public function destroy(Customer $customer)
+    {
+        $customer->delete();
+
+        return redirect()
+            ->route('customers.index')
+            ->with('success', 'Customer deleted successfully.');
+    }
+
+    private function validateCustomer(Request $request, ?int $id = null): array
+    {
+        return $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'email',
+                'max:255',
+                'unique:customers,email' . ($id ? ",{$id}" : ''),
+            ],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string'],
+        ]);
+    }
+}
