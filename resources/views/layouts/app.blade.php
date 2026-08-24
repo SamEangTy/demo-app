@@ -14,7 +14,7 @@
                 <div class="flex items-center gap-8">
                     <a href="{{ url('/') }}" class="text-lg font-semibold text-gray-800">My Project</a>
                     <a href="{{ route('customers.index') }}"
-                       class="text-sm font-medium {{ request()->routeIs('customers.*') || request()->routeIs('cart.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900' }}">
+                       class="text-sm font-medium {{ request()->routeIs('customers.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900' }}">
                         Customers
                     </a>
                     <a href="{{ route('products.index') }}"
