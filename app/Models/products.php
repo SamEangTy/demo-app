@@ -4,16 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Product extends Model
+class products extends Model
 {
+    //
     protected $fillable = [
+        'id',
         'name',
-        'description',
         'price',
-        'stock',
-    ];
-
-    protected $casts = [
-        'price' => 'decimal:2',
+        'qty',
+        'description',
     ];
 }

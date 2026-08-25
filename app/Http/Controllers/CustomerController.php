@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use App\Models\Product;
 use Illuminate\Http\Request;
 
 class CustomerController extends Controller
@@ -44,9 +43,7 @@ class CustomerController extends Controller
 
     public function show(Customer $customer)
     {
-        $products = Product::orderBy('name')->get();
-
-        return view('customers.show', compact('customer', 'products'));
+        return view('customers.show', compact('customer'));
     }
 
     public function edit(Customer $customer)

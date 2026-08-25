@@ -17,10 +17,6 @@
                        class="text-sm font-medium {{ request()->routeIs('customers.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900' }}">
                         Customers
                     </a>
-                    <a href="{{ route('products.index') }}"
-                       class="text-sm font-medium {{ request()->routeIs('products.*') ? 'text-indigo-600' : 'text-gray-600 hover:text-gray-900' }}">
-                        Products
-                    </a>
                 </div>
             </div>
         </div>

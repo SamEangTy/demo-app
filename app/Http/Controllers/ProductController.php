@@ -1,77 +1,52 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Models\Product;
+use App\Models\products;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+    //
+    public function index()
     {
-        $products = Product::query()
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->input('search');
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                        ->orWhere('description', 'like', "%{$search}%");
-                });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $products = products::all();
+        return view('products.index',['products' => $products]);
 
-        return view('products.index', compact('products'));
     }
 
     public function create()
     {
         return view('products.create');
     }
-
+    public function edit(products $product)
+    {   
+        return view('products.edit', ['product' => $product]);
+    }
+    public function update(Request $request, products $product)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'qty' => 'required|integer',
+            'description' => 'nullable|string',
+        ]);
+        $product->update($validated);
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
+    }
     public function store(Request $request)
     {
-        $validated = $this->validateProduct($request);
-
-        Product::create($validated);
-
-        return redirect()
-            ->route('products.index')
-            ->with('success', 'Product created successfully.');
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric',
+            'qty' => 'required|integer',
+            'description' => 'nullable|string',
+        ]);
+        $NewProduct = products::create($validated);
+        return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
-
-    public function edit(Product $product)
-    {
-        return view('products.edit', compact('product'));
-    }
-
-    public function update(Request $request, Product $product)
-    {
-        $validated = $this->validateProduct($request);
-
-        $product->update($validated);
-
-        return redirect()
-            ->route('products.index')
-            ->with('success', 'Product updated successfully.');
-    }
-
-    public function destroy(Product $product)
+    public function destroy(products $product)
     {
         $product->delete();
-
-        return redirect()
-            ->route('products.index')
-            ->with('success', 'Product deleted successfully.');
-    }
-
-    private function validateProduct(Request $request): array
-    {
-        return $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'price' => ['required', 'numeric', 'min:0'],
-            'stock' => ['required', 'integer', 'min:0'],
-        ]);
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }
